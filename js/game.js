@@ -4,6 +4,8 @@ const MINE = '💣'
 const FLAG = '🚩'
 const LIFE = '❤️'
 const HINT = '💡'
+const SAFE = '🦺'
+const MEGA = '💥MEGA'
 const EMPTY = ''
 
 
@@ -31,13 +33,20 @@ function onInit() {
         size: LEVEL[gDiff],
         mine: MINES[gDiff]
     }
-    
+
     gBonus = {
         hint: 3,
         isHint: false,
         safe: 3,
-        mage: 1,
-        selfMine: 1,
+        mega: {
+            isOn: false,
+            isUsed: false,
+            i: null,
+            j: null,
+        },
+        undo: [],
+        selfMine: false,
+        mines: gLevel.mine,
         removeMines: 1
     }
 
@@ -45,6 +54,8 @@ function onInit() {
     gBoard = buildBoard()
     renderBoard(gBoard)
     updateIcons()
+    updateLife(gGame.life)
+    updateStyle(gDiff)
 
     gFirstClick = true
     gGame.isOn = true
@@ -68,15 +79,12 @@ function buildBoard() {
 }
 
 function renderBoard(board) {
-
     const elBoard = document.querySelector('.board')
     var strHTML = ''
 
     for (var i = 0; i < board.length; i++) {
         strHTML += '<tr>\n'
         for (var j = 0; j < board[i].length; j++) {
-            const currCell = board[i][j]
-
             var cellClass = getClassName({ i, j })
 
             strHTML += `\t<td class="cell ${cellClass}" onclick="onCellClicked(this,${i},${j})" oncontextmenu=" onCellMarked(this,event,${i},${j})">`
@@ -85,9 +93,6 @@ function renderBoard(board) {
         }
         strHTML += '</tr>\n'
     }
-
-    updateLife(gGame.life)
-    updateStyle(gDiff)
 
     elBoard.innerHTML = strHTML
 }
@@ -125,40 +130,61 @@ function onCellClicked(elCell, i, j) {
 
     if (!gGame.isOn || currCell.isMarked || currCell.isShown) return
 
-    if(gFirstClick) {
+    if(gBonus.selfMine && gBonus.mines) {
+        placeMine(elCell, i, j)
+
+        return
+    }
+
+    if (gBonus.mega.isOn && !gBonus.mega.isUsed) {
+        if (gBonus.mega.i === null) {
+            elCell.classList.add('safe-cell')
+            gBonus.mega.i = i
+            gBonus.mega.j = j
+        } else {
+            showMegaHint(gBonus.mega.i, i, gBonus.mega.j, j)
+
+            gBonus.mega.isUsed = true
+        }
+
+        return
+    }
+
+    if (gFirstClick) {
         gDate = Date.now()
         gTimeCounter = setInterval(() => {
             updateTime()
         }, 1000)
     }
 
-    if(gBonus.isHint) {
-        showHintNeg(i,j)
+    if (gBonus.isHint) {
+        showHintNeg(i, j)
 
         gBonus.isHint = false
 
         return
     }
-    
+
     currCell.isShown = true
     elCell.classList.remove('cell')
-
+    
     if (currCell.isMine) {
         if (!gFirstClick) {
             mineClicked(elCell, currCell)
-
+            
             return
-
+            
         } else {
             var mineCell = getEmptyPos(gBoard)
-
+            
             gBoard[mineCell.i][mineCell.j].isMine = true
             currCell.isMine = false
-
+            
             setMinesNegsCount(gBoard)
         }
     }
-
+    
+    gBonus.undo.push({elCell, cell: currCell, i, j})
     gFirstClick = false
     elCell.classList.add('clicked')
     elCell.innerHTML = currCell.minesAroundCount < 1 ? '' : currCell.minesAroundCount
@@ -174,6 +200,7 @@ function mineClicked(elCell, currCell) {
     elCell.innerHTML = MINE
     elCell.classList.add('mine-clicked')
     gGame.life--
+    gBonus.undo.push({isMine: true})
     updateLife(gGame.life)
 
     if (!gGame.life) {
@@ -201,6 +228,7 @@ function onCellMarked(elCell, e, i, j) {
 
     if (currCell.isShown) return
 
+    gBonus.undo.push({elCell, cell: currCell, i, j})
     currCell.isMarked = !currCell.isMarked
     elCell.classList.toggle('flag')
     elCell.classList.toggle('cell')
@@ -232,6 +260,6 @@ function gameOver(isWon) {
 
     clearInterval(gTimeCounter)
 
-    if(!isWon) revelMines()
+    if (!isWon) revelMines()
 }
 

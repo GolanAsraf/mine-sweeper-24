@@ -17,11 +17,11 @@ body {
     height: 70px;
     width: 1000px;
     transition: 0.2s;
-    margin: 100px auto;
+    margin: 50px auto;
     border: 4mm ridge rgba(95, 84, 187, .6);
     background-color: rgb(95, 84, 187, 80%);
 }
-
+ 
 .bonus-btn {
     height: 25px;
     width: 75px;
@@ -31,6 +31,7 @@ body {
     background-color: rgba(199, 199, 207, 0.1);
     color: black;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .game-container {
@@ -44,6 +45,7 @@ body {
 
 .smile {
     width: 40px;
+    cursor: pointer;
 }
 
 .btn-emoji {
@@ -77,6 +79,10 @@ body {
     transition: 0.2s;
     background: rgb(63, 165, 248);
     cursor: pointer;
+}
+
+.safe-cell {
+    background: rgb(48, 236, 104, 70%);
 }
 
 .clicked {
@@ -131,6 +137,10 @@ body {
     background-color: yellow;
 }
 
+.self-mine {
+    background: red
+}
+
 .credit {
     position: absolute;
     margin-left: auto;
@@ -139,5 +149,5 @@ body {
     right: 0;
     text-align: center;
     color: tomato;
-    bottom: 100px;
+    bottom: 10px;
 }
