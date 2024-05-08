@@ -273,6 +273,12 @@ function useUndo() {
         updateLife(gGame.life)
 
         return
+    } else if (currCell.cell.isMarked) {
+        currCell.elCell.classList.remove('flag')
+        currCell.elCell.classList.add('cell')
+        currCell.elCell.innerHTML = ''
+
+        return
     }
 
     if (currCell.cell.minesAroundCount) {
@@ -408,7 +414,7 @@ function clearSelfMineStyle() {
             if (!gBoard[i][j].isMine) continue
 
             const elCell = document.querySelector(`.cell-${i}-${j}`)
-            
+
             elCell.classList.remove('self-mine')
         }
     }
