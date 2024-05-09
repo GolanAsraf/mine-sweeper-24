@@ -274,6 +274,7 @@ function useUndo() {
 
         return
     } else if (currCell.cell.isMarked) {
+        currCell.cell.isMarked = false
         currCell.elCell.classList.remove('flag')
         currCell.elCell.classList.add('cell')
         currCell.elCell.innerHTML = ''
