@@ -142,7 +142,6 @@ function updateDiff() {
     if (gDiff > 2) gDiff = 0
 
     var diff = ['👶', '🧑', '😈']
-
     const elDiff = document.querySelector('.diff')
 
     elDiff.innerHTML = diff[gDiff]
